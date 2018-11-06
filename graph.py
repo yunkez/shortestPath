@@ -1,6 +1,9 @@
 from collections import defaultdict
 import json
 import datetime
+import math
+import heapq
+import random
 
 class Graph:
     def __init__(self):
@@ -44,7 +47,8 @@ def build_graph2():
 
     return g
 
-def dijsktra(graph, initial):
+def dijkstra(graph, initial):
+
   visited = {initial: 0}
   path = {}
 
@@ -73,15 +77,51 @@ def dijsktra(graph, initial):
 
   return visited, path
 
+
+def dijkstra_heap(graph, initial):
+    visited = {initial: 0}
+    h = [(0, initial)]
+    path = {}
+
+    nodes = set(graph.nodes)
+
+    while nodes and h:
+        current_weight, min_node = heapq.heappop(h)
+        try:
+            while min_node not in nodes:
+                current_weight, min_node = heapq.heappop(h)
+        except IndexError:
+            break
+
+        nodes.remove(min_node)
+
+        for v in graph.edges[min_node]:
+            weight = current_weight + graph.distances[min_node, v]
+            if v not in visited or weight < visited[v]:
+                visited[v] = weight
+                heapq.heappush(h, (weight, v))
+                path[v] = min_node
+
+    return visited, path
+
+
 # g = build_graph1()
-# visited, path = dijsktra(g, '83079')
+# source = random.choice(list(g.nodes))
+# print("graph finished")
+# print(source)
+# start = datetime.datetime.now()
+# visited, path = dijkstra_heap(g, source)
 # print(visited)
-# print(path)
+# print(datetime.datetime.now() - start)
+
 
 g = build_graph2()
+source = random.choice(list(g.nodes))
 print("graph finished")
-print(datetime.datetime.now())
-visited, path = dijsktra(g, '22300')
+start = datetime.datetime.now()
+print(start)
+print(source)
+visited, path = dijkstra_heap(g, source)
 print(visited)
-print(path)
-print(datetime.datetime.now())
+print(datetime.datetime.now() - start)
+
